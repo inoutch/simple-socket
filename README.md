@@ -1,2 +1,2 @@
 # simple-socket
-Simple socket utilities and cross platform for C++
+Simple socket utilities and cross platform for C++ and portable
