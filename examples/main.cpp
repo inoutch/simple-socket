@@ -13,7 +13,6 @@ int exampleTcp();
 int exampleUdp();
 
 int main(int argc, char *argv[]) {
-
     int eid;
     cout << "Which example would you like to execute? [tcp: 1, upd: 2] ";
     cin >> eid;
@@ -29,7 +28,6 @@ int main(int argc, char *argv[]) {
 }
 
 int exampleTcp() {
-
     int type;
     cout << "server of client? [server: 1, client: 2] ";
     cin >> type;
