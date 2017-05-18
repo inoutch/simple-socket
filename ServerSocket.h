@@ -5,52 +5,35 @@
 #include "SocketUtil.h"
 
 namespace simplesocket {
-    
+    typedef struct {
+        int sock;
+        struct sockaddr_in addr;
+        socklen_t len;
+    } ClientInfo;
+
+    class ServerSocket {
+    private:
+        int sock = 0;
+        struct sockaddr_in serverAddr;
+        IPType type = None;
+
+    public:
+        ServerSocket();
+
+        ~ServerSocket();
+
+        int openServer(uint16_t port, IPType type, int limit = 1);
+
+        int acceptClient(ClientInfo *newClientInfo);
+
+        ssize_t sendToClient(const ClientInfo *clientInfo, const char *data, size_t size);
+
+        ssize_t receiveFromClient(const ClientInfo *clientInfo, char *data, size_t size);
+
+        ssize_t receiveFromSomeone(ClientInfo *someone, char *data, size_t size);
+
+        void closeClient(const ClientInfo *clientInfo);
+
+        void closeSocket();
+    };
 }
-
-/*struct ClientInfo {
-    int sock;
-    struct sockaddr_in addr;
-    int len;
-    int id;
-};
-
-class ServerSocket {
-    bool initialized = false;
-    int sock = 0; //	my socket
-    struct sockaddr_in addr; //	my addr
-public:
-    ServerSocket();
-
-    ~ServerSocket();
-
-    int init();
-
-    int openServer(int port, int limit);
-
-    int openServerUdp(int port);
-
-    int acceptClient(ClientInfo *client);
-
-    int receiveFromClient(ClientInfo *client, char *data, int size);
-
-    int receiveUdpFromClient(ClientInfo *client, char *data, int size);
-
-    int sendToClient(ClientInfo *client, char *data, int size);
-
-    int sendUdpToClient(ClientInfo *client, char *data, int size);
-
-    void setSockNonBlock();
-
-    void setSockBlock();
-
-    void setSockNonBlock(ClientInfo *client);
-
-    void closeClientSocket(ClientInfo *client);
-
-    void closeSocket();
-
-    struct sockaddr_in getAddr() {
-        return addr;
-    }
-};*/

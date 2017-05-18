@@ -7,23 +7,6 @@
 
 using namespace simplesocket;
 
-static struct sockaddr_in getAddr(in_addr_t addr, uint16_t port) {
-    struct sockaddr_in ret;
-
-#if  !defined(LINUX) && !defined(ANDROID)
-    ret.sin_len = sizeof(ret.sin_addr);
-#endif
-    ret.sin_family = AF_INET;
-    ret.sin_port = htons(port);
-#ifdef WIN32
-    inet_pton(AF_INET, addr, &addr.sin_addr);
-#else
-    ret.sin_addr.s_addr = addr;
-#endif
-    memset(ret.sin_zero, 0, sizeof(ret.sin_zero));
-    return ret;
-}
-
 ClientSocket::ClientSocket() {
 #ifdef LINUX
     //  ignore sigpipe
@@ -33,7 +16,7 @@ ClientSocket::ClientSocket() {
 }
 
 ClientSocket::~ClientSocket() {
-    this->closeSocket();
+    closeSocket();
 }
 
 int ClientSocket::connectServer(const char *addr, uint16_t port, IPType type, bool nonblock) {
@@ -63,16 +46,17 @@ int ClientSocket::connectServer(const char *addr, uint16_t port, IPType type, bo
         SocketUtil::setNonBlock(sock);
     }
 
-    clientAddr = getAddr(inet_addr(addr), port);
+    clientAddr = SocketUtil::getAddr(inet_addr(addr), port);
     if (type == IPType::TCP) {
         if (connect(sock, (struct sockaddr *) &clientAddr, sizeof(clientAddr)) < 0) {
             closeSocket();
             return -1;
         }
     } else if (type == IPType::UDP) {
-        serverAddr = getAddr(INADDR_ANY, port);
+        serverAddr = SocketUtil::getAddr(INADDR_ANY, port);
         SocketUtil::setReuseAddr(sock);
         if (bind(sock, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0) {
+            perror("bind");
             return -1;
         }
     }
@@ -99,18 +83,6 @@ ServerInfo ClientSocket::getEmptyServerInfo() {
     return serverInfo;
 }
 
-ssize_t ClientSocket::checkError(ssize_t result) {
-    if (result != (ssize_t) -1) {
-        return result;
-    }
-    switch (errno) {
-        case EPIPE:
-            return -2;
-        default:
-            return -1;
-    }
-}
-
 ssize_t ClientSocket::sendToServer(const char *data, size_t size) {
     if (type == TCP) {
         return sendToServerTcp(data, size);
@@ -128,35 +100,37 @@ ssize_t ClientSocket::sendByBroadcast(const char *data, size_t size) {
     getsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *) &tmp, &len);
     setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *) &opt, len);
 
-    auto ret = checkError(sendToServerUdp(data, size));
+    auto ret = SocketUtil::checkError(sendToServerUdp(data, size));
 
     setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *) &tmp, len);
     return ret;
 }
 
 ssize_t ClientSocket::sendToServerTcp(const char *data, size_t size) {
-    return checkError(send(sock, data, size, 0));
+    return SocketUtil::checkError(send(sock, data, size, 0));
 }
 
 ssize_t ClientSocket::sendToServerUdp(const char *data, size_t size) {
-    return checkError(sendto(sock, data, size, 0, (const struct sockaddr *) &clientAddr, sizeof(clientAddr)));
+    return SocketUtil::checkError(
+            sendto(sock, data, size, 0, (const struct sockaddr *) &clientAddr, sizeof(clientAddr)));
 }
 
 ssize_t ClientSocket::sendToServer(const ServerInfo *server, const char *data, size_t size) {
     if (type != UDP) {
         return 0;
     }
-    return checkError(sendto(sock, data, size, 0, (const struct sockaddr *) &server->addr, sizeof(server->addr)));
+    return SocketUtil::checkError(
+            sendto(sock, data, size, 0, (const struct sockaddr *) &server->addr, sizeof(server->addr)));
 }
 
 ssize_t ClientSocket::receiveFromServer(char *data, size_t size) {
-    return checkError(recv(sock, data, size, 0));
+    return SocketUtil::checkError(recv(sock, data, size, 0));
 }
 
 ssize_t ClientSocket::receiveFromSomeone(ServerInfo *server, char *data, size_t size) {
 #if defined(WIN32) || defined(ANDROID)
-    return checkError(recvfrom(sock, data, size, 0, (struct sockaddr *) &server->addr, (int*)&server->len));
+    return SocketUtil::checkError(recvfrom(sock, data, size, 0, (struct sockaddr *) &server->addr, (int*)&server->len));
 #else
-    return checkError(recvfrom(sock, data, size, 0, (struct sockaddr *) &server->addr, &server->len));
+    return SocketUtil::checkError(recvfrom(sock, data, size, 0, (struct sockaddr *) &server->addr, &server->len));
 #endif
 }

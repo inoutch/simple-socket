@@ -18,8 +18,6 @@ namespace simplesocket {
         struct sockaddr_in clientAddr;
         IPType type = None;
 
-        ssize_t checkError(ssize_t result);
-
         ssize_t sendToServerTcp(const char *data, size_t size);
 
         ssize_t sendToServerUdp(const char *data, size_t size);

@@ -35,7 +35,7 @@ int exampleTcp() {
     if (type == 1) {
         char buff[1024] = {};
         ServerSocket server;
-        if (server.init() < 0 || server.openServer(PORT, 1) < 0) {
+        if (server.openServer((uint16_t) PORT, IPType::TCP) < 0) {
             cout << "open error\n";
             return 0;
         }
@@ -48,7 +48,7 @@ int exampleTcp() {
         server.receiveFromClient(&clientInfo, buff, sizeof(buff) - 1);
         cout << buff;
 
-        server.closeClientSocket(&clientInfo);
+        server.closeClient(&clientInfo);
         server.closeSocket();
         cout << "successful!\n";
         return 0;
@@ -68,6 +68,7 @@ int exampleTcp() {
         cout << "successful!\n";
         return 0;
     }
+    return 0;
 }
 
 int exampleUdp() {
@@ -78,7 +79,7 @@ int exampleUdp() {
     if (type == 1) {
         char buff[1024] = {};
         ServerSocket server;
-        if (server.init() < 0 || server.openServerUdp(PORT) < 0) {
+        if (server.openServer((uint16_t) PORT, IPType::UDP) < 0) {
             cout << "open error\n";
             return 0;
         }
@@ -86,7 +87,7 @@ int exampleUdp() {
 
         ClientInfo clientInfo = {};
         memset(buff, '\0', sizeof(buff));
-        server.receiveUdpFromClient(&clientInfo, buff, sizeof(buff) - 1);
+        server.receiveFromSomeone(&clientInfo, buff, sizeof(buff) - 1);
         cout << buff;
 
         server.closeSocket();
@@ -108,4 +109,5 @@ int exampleUdp() {
         cout << "successful!\n";
         return 0;
     }
+    return 0;
 }
