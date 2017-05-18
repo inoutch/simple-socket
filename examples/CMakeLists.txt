@@ -3,5 +3,5 @@ project(examples)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp ../ServerSocket.cpp ../ClientSocket.cpp)
+set(SOURCE_FILES main.cpp ../ServerSocket.cpp ../ClientSocket.cpp ../SocketUtil.cpp ../SocketUtil.h)
 add_executable(examples ${SOURCE_FILES})

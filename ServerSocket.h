@@ -1,28 +1,14 @@
 #pragma once
-#ifdef WIN32
-#include <WinSock2.h>
-#else
-
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <unistd.h>
-
-#endif
 
 #include <vector>
+#include "types.h"
+#include "SocketUtil.h"
 
-struct ConnectionConfig {
-    char name[64];
-    int index;
-};
+namespace simplesocket {
+    
+}
 
-struct ClientInfo {
+/*struct ClientInfo {
     int sock;
     struct sockaddr_in addr;
     int len;
@@ -67,4 +53,4 @@ public:
     struct sockaddr_in getAddr() {
         return addr;
     }
-};
+};*/

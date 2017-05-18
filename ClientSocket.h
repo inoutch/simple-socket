@@ -2,23 +2,7 @@
 
 #include <vector>
 #include "types.h"
-
-#ifdef WIN32
-#include <WinSock2.h>
-#else
-
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <stdio.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <unistd.h>
-#include <signal.h>
-
-#endif
+#include "SocketUtil.h"
 
 namespace simplesocket {
     typedef struct {
@@ -33,12 +17,6 @@ namespace simplesocket {
         struct sockaddr_in serverAddr;
         struct sockaddr_in clientAddr;
         IPType type = None;
-
-        void setNonBlock();
-
-        void setNoSigPipe();
-
-        void setReuseAddr();
 
         ssize_t checkError(ssize_t result);
 

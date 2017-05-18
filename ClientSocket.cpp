@@ -57,10 +57,10 @@ int ClientSocket::connectServer(const char *addr, uint16_t port, IPType type, bo
             return -1;
         }
     }
-    setNoSigPipe();
+    SocketUtil::setNoSigPipe(sock);
 
     if (nonblock) {
-        setNonBlock();
+        SocketUtil::setNonBlock(sock);
     }
 
     clientAddr = getAddr(inet_addr(addr), port);
@@ -71,7 +71,7 @@ int ClientSocket::connectServer(const char *addr, uint16_t port, IPType type, bo
         }
     } else if (type == IPType::UDP) {
         serverAddr = getAddr(INADDR_ANY, port);
-        setReuseAddr();
+        SocketUtil::setReuseAddr(sock);
         if (bind(sock, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0) {
             return -1;
         }
@@ -91,26 +91,6 @@ void ClientSocket::closeSocket() {
 #endif
     sock = -1;
     type = None;
-}
-
-void ClientSocket::setNonBlock() {
-#ifdef WIN32
-    unsigned long nonblocking = 1;
-    ioctlsocket(sock, FIONBIO, &nonblocking);
-#endif
-    fcntl(sock, F_SETFL, O_NONBLOCK);
-}
-
-void ClientSocket::setNoSigPipe() {
-#if !defined(ANDROID) && !defined(LINUX)
-    int set = 1;
-    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *) &set, sizeof(int));
-#endif
-}
-
-void ClientSocket::setReuseAddr() {
-    int yes = 1;
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *) &yes, sizeof(yes));
 }
 
 ServerInfo ClientSocket::getEmptyServerInfo() {
